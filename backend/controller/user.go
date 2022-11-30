@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -48,6 +48,30 @@ func Register(c *gin.Context) {
 	}
 }
 
+func LoginGet(c *gin.Context) {
+	log.Info("loginGet")
+	c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.JSON(http.StatusOK, gin.H{
+		"login": "ok",
+	})
+}
+
+func LoginOptions(c *gin.Context) {
+	log.Info("loginOptions")
+	c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Origin", "*")
+
+	c.Header("Access-Control-Allow-Credentials", "true")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+	//c.Header("Access-Control-Allow-Headers", "Content-Type,Access-Token")
+	c.Header("Access-Control-Expose-Headers", "*")
+	c.JSON(http.StatusOK, gin.H{
+		"login": "ok",
+	})
+}
+
 func Login(c *gin.Context) {
 	//cookie, _ := c.Cookie(COOKIE_NAME)
 	//if cookie != "" {
@@ -61,7 +85,12 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if len(params.Username) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username cant't be empty"})
+		return
+	}
 
+	log.Info("params", params)
 	user := model.User{Username: params.Username, Password: params.Password}
 	if err := user.Find(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -69,8 +98,8 @@ func Login(c *gin.Context) {
 	}
 
 	genCookie(params.Username, c)
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Header("Access-Control-Allow-Methods", "*")
 	c.JSON(http.StatusOK, gin.H{
 		"login": "ok",
 	})
