@@ -147,7 +147,6 @@ class FilterableProductTable extends React.Component {
         super(props)
         this.state = {
             onlyStock: false,
-            data: props.data,
             search: '',
         }
         this.handleOnlyStock = this.handleOnlyStock.bind(this)
@@ -156,26 +155,24 @@ class FilterableProductTable extends React.Component {
     }
 
     filter() {
-        const search = this.state.search.toLowerCase()
-        const data = this.props.data.filter(item => {
-            return (this.state.search === '' || item.name.toLowerCase().includes(search))
-                && !(this.state.onlyStock && !item.stocked)
-        })
-        this.setState({data: data})
+
     }
 
     handleOnlyStock(checked) {
         this.setState({onlyStock: checked})
-        this.filter()
     }
 
     handleSearch(s) {
         this.setState({search: s})
-        this.filter()
     }
 
     render() {
-        const filterData = this.state.data
+        const search = this.state.search.toLowerCase()
+        const filterData = this.props.data.filter(item => {
+            return (this.state.search === '' || item.name.toLowerCase().includes(search))
+                && !(this.state.onlyStock && !item.stocked)
+        })
+
         return (
             <div>
                 <SearchBar handleOnlyStock={this.handleOnlyStock} handleSearch={this.handleSearch}/>
